@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.wearable.view.BoxInsetLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:padding="15dp">
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/fragment_forecast"
+        android:name="com.example.android.sunshine.wear.ForecastFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:sharedElementTransitions="true"/>
+</android.support.wearable.view.BoxInsetLayout>
