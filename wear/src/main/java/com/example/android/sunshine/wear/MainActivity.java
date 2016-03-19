@@ -62,11 +62,10 @@ public class MainActivity extends FragmentActivity implements ForecastFragment.C
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-                ForecastFragment forecastFragment =  ((ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast));
+                ForecastFragment forecastFragment = ((ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast));
                 forecastFragment.setUseTodayLayout(!/*mTwoPane*/false);
                 if (contentUri != null) {
-                    forecastFragment.setInitialSelectedDate(
-                            WeatherContract.WeatherEntry.getDateFromUri(contentUri));
+                    forecastFragment.setInitialSelectedDate(WeatherContract.WeatherEntry.getDateFromUri(contentUri));
                 }
             }
         });
@@ -94,8 +93,7 @@ public class MainActivity extends FragmentActivity implements ForecastFragment.C
             // Because this is the initial creation of the app, we'll want to be certain we have
             // a token. If we do not, then we will start the IntentService that will register this
             // application with GCM.
-            SharedPreferences sharedPreferences =
-                    PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             boolean sentToken = sharedPreferences.getBoolean(SENT_TOKEN_TO_SERVER, false);
             if (!sentToken) {
                 Intent intent = new Intent(this, RegistrationIntentService.class);

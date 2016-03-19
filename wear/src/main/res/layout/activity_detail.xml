@@ -9,6 +9,7 @@
     app:rectLayout="@layout/rect_activity_detail"
     app:roundLayout="@layout/round_activity_detail"
     tools:context="com.example.android.sunshine.wear.MainActivity"
-    tools:deviceIds="wear">
+    tools:deviceIds="wear"
+    android:background="@drawable/touch_selector">
 
 </android.support.wearable.view.WatchViewStub>
