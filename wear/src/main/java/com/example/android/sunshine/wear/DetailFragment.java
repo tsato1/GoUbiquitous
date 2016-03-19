@@ -13,6 +13,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,12 +83,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mPressureLabelView;
 
     public DetailFragment() {
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(false);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         Bundle arguments = getArguments();
         if (arguments != null) {

@@ -70,7 +70,7 @@ public class MainActivity extends FragmentActivity implements ForecastFragment.C
             }
         });
 
-        if (savedInstanceState == null) {
+//        if (savedInstanceState == null) {
 //            DetailFragment fragment = new DetailFragment();
 //            if (contentUri != null) {
 //                Bundle args = new Bundle();
@@ -80,7 +80,7 @@ public class MainActivity extends FragmentActivity implements ForecastFragment.C
 //            getSupportFragmentManager().beginTransaction()
 //                    .replace(R.id.weather_detail_container, fragment, DETAILFRAGMENT_TAG)
 //                    .commit();
-        }
+//        }
 
 
         SunshineSyncAdapter.initializeSyncAdapter(this);
@@ -107,17 +107,17 @@ public class MainActivity extends FragmentActivity implements ForecastFragment.C
         super.onResume();
         String location = Utility.getPreferredLocation( this );
         // update the location in our second pane using the fragment manager
-//        if (location != null && !location.equals(mLocation)) {
-//            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
-//            if ( null != ff ) {
-//                ff.onLocationChanged();
-//            }
-//            DetailFragment df = (DetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
-//            if ( null != df ) {
-//                df.onLocationChanged(location);
-//            }
-//            mLocation = location;
-//        }
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+            if ( null != ff ) {
+                ff.onLocationChanged();
+            }
+            DetailFragment df = (DetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if ( null != df ) {
+                df.onLocationChanged(location);
+            }
+            mLocation = location;
+        }
     }
 
     @Override
@@ -136,12 +136,10 @@ public class MainActivity extends FragmentActivity implements ForecastFragment.C
 //                    .replace(R.id.weather_detail_container, fragment, DETAILFRAGMENT_TAG)
 //                    .commit();
 //        } else {
-            Intent intent = new Intent(this, DetailActivity.class)
-                    .setData(contentUri);
+            Intent intent = new Intent(this, DetailActivity.class).setData(contentUri);
 
             ActivityOptionsCompat activityOptions =
-                    ActivityOptionsCompat.makeSceneTransitionAnimation(this,
-                            new Pair<View, String>(vh.mIconView, getString(R.string.detail_icon_transition_name)));
+                    ActivityOptionsCompat.makeSceneTransitionAnimation(this, new Pair<View, String>(vh.mIconView, getString(R.string.detail_icon_transition_name)));
             ActivityCompat.startActivity(this, intent, activityOptions.toBundle());
 //        }
     }
