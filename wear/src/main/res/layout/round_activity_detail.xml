@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.wearable.view.BoxInsetLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:padding="15dp">
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    android:padding="@dimen/round_box_inset_padding">
+    <!--<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">-->
+        <!--<View
+            android:id="@+id/view_background_today"
+            android:layout_width="match_parent"
+            android:layout_height="111dp"/>
+        <View
+            android:id="@+id/view_background_extra"
+            android:layout_width="match_parent"
+            android:layout_height="74dp"
+            android:layout_below="@id/view_background_today"/>-->
+
+    <!--</RelativeLayout>-->
+    <FrameLayout
         android:id="@+id/weather_detail_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

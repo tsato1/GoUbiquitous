@@ -34,6 +34,12 @@ import android.widget.TextView;
 import com.example.android.sunshine.wear.data.WeatherContract;
 import com.example.android.sunshine.wear.sync.SunshineSyncAdapter;
 
+import org.w3c.dom.Text;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link android.support.v7.widget.RecyclerView} layout.
  */
@@ -45,6 +51,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private int mChoiceMode;
     private boolean mHoldForTransition;
     private long mInitialSelectedDate = -1;
+    private TextView mCurrentTimeTextView;
 
     private static final String SELECTED_KEY = "selected_position";
 
@@ -130,6 +137,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        mCurrentTimeTextView = (TextView) rootView.findViewById(R.id.txv_current_time);
+        Thread myThread = null;
+        Runnable runnable = new CountDownRunner();
+        myThread= new Thread(runnable);
+        myThread.start();
+
         // Get a reference to the RecyclerView, and attach this adapter to it.
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_forecast);
 
@@ -170,6 +183,39 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
 
         return rootView;
+    }
+
+    /*
+     * Reference:  http://stackoverflow.com/questions/2271131/display-the-current-time-and-date-in-an-android-application
+     */
+    public void doWork() {
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                try{
+                    Date dt = new Date();
+                    int hours = dt.getHours();
+                    int minutes = dt.getMinutes();
+                    int seconds = dt.getSeconds();
+                    String curTime = hours + ":" + minutes + ":" + seconds;
+                    mCurrentTimeTextView.setText(curTime);
+                }catch (Exception e) {}
+            }
+        });
+    }
+
+
+    class CountDownRunner implements Runnable {
+        // @Override
+        public void run() {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    doWork();
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
     }
 
     @Override
