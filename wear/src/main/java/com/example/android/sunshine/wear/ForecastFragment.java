@@ -183,26 +183,29 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
      * Reference:  http://stackoverflow.com/questions/2271131/display-the-current-time-and-date-in-an-android-application
      */
     public void doWork() {
-        getActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                try{
-                    Date dt = new Date();
-                    String hours = dt.getHours() + "";
-                    String minutes = dt.getMinutes() + "";
-                    String seconds = dt.getSeconds() + "";
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    try {
+                        Date dt = new Date();
+                        String hours = dt.getHours() + "";
+                        String minutes = dt.getMinutes() + "";
+                        String seconds = dt.getSeconds() + "";
 
-                    if (hours.length() == 1) hours = "0" + hours;
-                    if (minutes.length() == 1) minutes = "0" + minutes;
-                    if (seconds.length() == 1) seconds = "0" + seconds;
+                        if (hours.length() == 1) hours = "0" + hours;
+                        if (minutes.length() == 1) minutes = "0" + minutes;
+                        if (seconds.length() == 1) seconds = "0" + seconds;
 
-                    String curHourMin = hours + ":" + minutes;
-                    String curSec = ":" + seconds;
+                        String curHourMin = hours + ":" + minutes;
+                        String curSec = ":" + seconds;
 
-                    mCurrentHourMinuteTextView.setText(curHourMin);
-                    mCurrentSecondTextView.setText(curSec);
-                }catch (Exception e) {}
-            }
-        });
+                        mCurrentHourMinuteTextView.setText(curHourMin);
+                        mCurrentSecondTextView.setText(curSec);
+                    } catch (Exception e) {
+                    }
+                }
+            });
+        }
     }
 
 
