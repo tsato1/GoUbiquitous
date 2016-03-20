@@ -4,22 +4,18 @@ package com.example.android.sunshine.wear;
  * Created by tsato on 3/17/16.
  */
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -34,10 +30,6 @@ import android.widget.TextView;
 import com.example.android.sunshine.wear.data.WeatherContract;
 import com.example.android.sunshine.wear.sync.SunshineSyncAdapter;
 
-import org.w3c.dom.Text;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -51,7 +43,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private int mChoiceMode;
     private boolean mHoldForTransition;
     private long mInitialSelectedDate = -1;
-    private TextView mCurrentTimeTextView;
+    private TextView mCurrentHourMinuteTextView;
+    private TextView mCurrentSecondTextView;
 
     private static final String SELECTED_KEY = "selected_position";
 
@@ -137,7 +130,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        mCurrentTimeTextView = (TextView) rootView.findViewById(R.id.txv_current_time);
+        mCurrentHourMinuteTextView = (TextView) rootView.findViewById(R.id.txv_current_hour_min);
+        mCurrentSecondTextView = (TextView) rootView.findViewById(R.id.txv_current_second);
         Thread myThread = null;
         Runnable runnable = new CountDownRunner();
         myThread= new Thread(runnable);
@@ -193,11 +187,19 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             public void run() {
                 try{
                     Date dt = new Date();
-                    int hours = dt.getHours();
-                    int minutes = dt.getMinutes();
-                    int seconds = dt.getSeconds();
-                    String curTime = hours + ":" + minutes + ":" + seconds;
-                    mCurrentTimeTextView.setText(curTime);
+                    String hours = dt.getHours() + "";
+                    String minutes = dt.getMinutes() + "";
+                    String seconds = dt.getSeconds() + "";
+
+                    if (hours.length() == 1) hours = "0" + hours;
+                    if (minutes.length() == 1) minutes = "0" + minutes;
+                    if (seconds.length() == 1) seconds = "0" + seconds;
+
+                    String curHourMin = hours + ":" + minutes;
+                    String curSec = ":" + seconds;
+
+                    mCurrentHourMinuteTextView.setText(curHourMin);
+                    mCurrentSecondTextView.setText(curSec);
                 }catch (Exception e) {}
             }
         });

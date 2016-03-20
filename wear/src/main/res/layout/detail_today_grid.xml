@@ -50,8 +50,6 @@
 
         <TextView
             android:id="@+id/detail_high_textview"
-            android:layout_width="0dp"
-            android:layout_weight="1"
             android:fontFamily="sans-serif-light"
             android:gravity="center_horizontal"
             android:textColor="@color/primary_text"
@@ -73,8 +71,6 @@
 
         <TextView
             android:id="@+id/detail_low_textview"
-            android:layout_width="0dp"
-            android:layout_weight="1"
             android:fontFamily="sans-serif-light"
             android:gravity="center_horizontal"
             android:textColor="@color/secondary_text"
