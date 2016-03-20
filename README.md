@@ -12,12 +12,18 @@ The following **required** functionality is completed:
 * [ ] App displays the current time.
 * [ ] App displays the high and low temperatures.
 * [ ] App displays a graphic that summarizes the day’s weather (e.g., a sunny image, rainy image, cloudy image, etc.)
-* 
+
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+* Android Wear Square
+
+<img src='http://imgur.com/xn2K5HN.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+
+* Android Wear Round
+
+<img src='http://imgur.com/FeYTKUU.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
