@@ -237,6 +237,7 @@
     <!-- For Google Places API Attributions -->
     <string name="attribution_text">Powered by Google</string>
 
+    <string name="watch_face_name">Sunshine Watch Face</string>
 </resources>
 
 

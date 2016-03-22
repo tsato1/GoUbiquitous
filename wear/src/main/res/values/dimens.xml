@@ -50,4 +50,9 @@
 
     <dimen name="list_item_extra_padding">0dp</dimen>
 
+    <dimen name="y_offset">20dp</dimen>
+    <dimen name="x_offset_round">20dp</dimen>
+    <dimen name="x_offset_square">20dp</dimen>
+    <dimen name="watch_face_text_size">32sp</dimen>
+
 </resources>
