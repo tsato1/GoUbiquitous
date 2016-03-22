@@ -53,6 +53,10 @@
     <dimen name="y_offset">20dp</dimen>
     <dimen name="x_offset_round">20dp</dimen>
     <dimen name="x_offset_square">20dp</dimen>
-    <dimen name="watch_face_text_size">32sp</dimen>
-
+    <dimen name="watch_face_text_time_size">32sp</dimen>
+    <dimen name="watch_face_text_date_size">18sp</dimen>
+    <dimen name="watch_face_text_temp_size">24sp</dimen>
+    <dimen name="watch_face_weather_icon_size">34dp</dimen>
+    <dimen name="watch_face_view_stub_margin">14dp</dimen>
+    <dimen name="watch_face_margin_between_temp">6dp</dimen>
 </resources>

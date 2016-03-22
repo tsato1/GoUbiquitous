@@ -21,7 +21,9 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -66,6 +68,10 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
         private int mTextColor = Color.parseColor( "red" );
 
         private FrameLayout mFrameLayout;
+        private TextView mTimeTextView;
+        private TextView mDateTextView;
+        private ImageView mWeatherImageView;
+        private TextView mTemperatureTextView;
 
         private final Handler mTimeHandler = new Handler() {
             @Override
@@ -107,14 +113,15 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             mDisplayTime = new Time();
 
             mFrameLayout = (FrameLayout) mInflater.inflate(R.layout.watch_face_main, null);
+            mTimeTextView = (TextView) mFrameLayout.findViewById(R.id.txv_time);
 
-            initBackground();
-            initDisplayText();
+            //initBackground();
+            //initDisplayText();
         }
 
         private void initBackground() {
-            //mBackgroundColorPaint = new Paint();
-            //mBackgroundColorPaint.setColor( mBackgroundColor );
+            mBackgroundColorPaint = new Paint();
+            mBackgroundColorPaint.setColor( mBackgroundColor );
         }
 
         private void drawBackground( Canvas canvas, Rect bounds ) {
@@ -126,9 +133,8 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             mTextColorPaint.setColor( mTextColor );
             mTextColorPaint.setTypeface( WATCH_TEXT_TYPEFACE );
             mTextColorPaint.setAntiAlias( true );
-            mTextColorPaint.setTextSize( getResources().getDimension( R.dimen.watch_face_text_size ) );
+            //mTextColorPaint.setTextSize( getResources().getDimension( R.dimen.watch_face_text_size ) );
         }
-
 
         @Override
         public void onPropertiesChanged(Bundle properties) {
@@ -173,14 +179,11 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             int widthSpec = View.MeasureSpec.makeMeasureSpec(bounds.width(), View.MeasureSpec.EXACTLY);
             int heightSpec = View.MeasureSpec.makeMeasureSpec(bounds.height(), View.MeasureSpec.EXACTLY);
             mFrameLayout.measure(widthSpec, heightSpec);
-
-            //Lay the view out at the rect width and height
             mFrameLayout.layout(0, 0, bounds.width(), bounds.height());
-
             mFrameLayout.draw(canvas);
 
             //drawBackground( canvas, bounds );
-            //drawTimeText( canvas );
+            drawTimeText( canvas );
         }
 
         private void drawTimeText( Canvas canvas ) {
@@ -190,7 +193,8 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             } else {
                 timeText += String.format( ":%02d", mDisplayTime.second);
             }
-            canvas.drawText( timeText, mXOffset, mYOffset, mTextColorPaint );
+            mTimeTextView.setText(timeText);
+            //canvas.drawText( timeText, mXOffset, mYOffset, mTextColorPaint );
         }
 
         private String getHourString() {
