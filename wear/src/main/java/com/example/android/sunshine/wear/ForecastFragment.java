@@ -43,8 +43,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private int mChoiceMode;
     private boolean mHoldForTransition;
     private long mInitialSelectedDate = -1;
-    private TextView mCurrentHourMinuteTextView;
-    private TextView mCurrentSecondTextView;
 
     private static final String SELECTED_KEY = "selected_position";
 
@@ -130,13 +128,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        mCurrentHourMinuteTextView = (TextView) rootView.findViewById(R.id.txv_current_hour_min);
-        mCurrentSecondTextView = (TextView) rootView.findViewById(R.id.txv_current_second);
-        Thread myThread = null;
-        Runnable runnable = new CountDownRunner();
-        myThread= new Thread(runnable);
-        myThread.start();
-
         // Get a reference to the RecyclerView, and attach this adapter to it.
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_forecast);
 
@@ -177,50 +168,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
 
         return rootView;
-    }
-
-    /*
-     * Reference:  http://stackoverflow.com/questions/2271131/display-the-current-time-and-date-in-an-android-application
-     */
-    public void doWork() {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    try {
-                        Date dt = new Date();
-                        String hours = dt.getHours() + "";
-                        String minutes = dt.getMinutes() + "";
-                        String seconds = dt.getSeconds() + "";
-
-                        if (hours.length() == 1) hours = "0" + hours;
-                        if (minutes.length() == 1) minutes = "0" + minutes;
-                        if (seconds.length() == 1) seconds = "0" + seconds;
-
-                        String curHourMin = hours + ":" + minutes;
-                        String curSec = ":" + seconds;
-
-                        mCurrentHourMinuteTextView.setText(curHourMin);
-                        mCurrentSecondTextView.setText(curSec);
-                    } catch (Exception e) {
-                    }
-                }
-            });
-        }
-    }
-
-
-    class CountDownRunner implements Runnable {
-        // @Override
-        public void run() {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    doWork();
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
     }
 
     @Override

@@ -8,30 +8,6 @@
     tools:context="com.example.android.sunshine.wear.MainActivity"
     tools:deviceIds="wear_square">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center">
-        <TextView
-            android:id="@+id/txv_current_hour_min"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10dp"
-            android:textColor="@color/primary_text"/>
-        <TextView
-            android:id="@+id/txv_current_second"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="7dp"
-            android:textColor="@color/primary_text"/>
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/detail_accent_pane_background"/>
-
     <TextView
         android:id="@+id/recyclerview_forecast_empty"
         android:layout_width="wrap_content"
