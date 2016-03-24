@@ -11,6 +11,7 @@ import com.example.android.sunshine.wear.sync.SunshineSyncAdapter;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -75,6 +76,20 @@ public class Utility {
     // Format used for storing dates in the database.  ALso used for converting those strings
     // back into date objects for comparison/processing.
     public static final String DATE_FORMAT = "yyyyMMdd";
+
+
+    public static String[] DAY_OF_WEEK = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    public static String[] MONTH_OF_YEAR = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    public static String getDateForWatchFace() {
+
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int date = calendar.get(Calendar.DATE);
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+
+        return DAY_OF_WEEK[day] + ", " + MONTH_OF_YEAR[month] + " " + date + " " + year;
+    }
 
     /**
      * Helper method to convert the database representation of the date into something to display

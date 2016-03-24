@@ -5,20 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v7.widget.CardView;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
@@ -27,11 +20,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -59,28 +50,29 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
     /* implement service callback methods */
     private class Engine extends CanvasWatchFaceService.Engine {
         private String TAG = Engine.class.getCanonicalName();
-        private Uri mUri;
 
-        private Typeface WATCH_TEXT_TYPEFACE = Typeface.create( Typeface.SERIF, Typeface.NORMAL );
+        public static final int COL_WEATHER_ID = 0;
+        public static final int COL_WEATHER_DATE = 1;
+        public static final int COL_WEATHER_DESC = 2;
+        public static final int COL_WEATHER_MAX_TEMP = 3;
+        public static final int COL_WEATHER_MIN_TEMP = 4;
+        public static final int COL_WEATHER_HUMIDITY = 5;
+        public static final int COL_WEATHER_PRESSURE = 6;
+        public static final int COL_WEATHER_WIND_SPEED = 7;
+        public static final int COL_WEATHER_DEGREES = 8;
+        public static final int COL_WEATHER_CONDITION_ID = 9;
 
+        private static final int MSG_UPDATE_DATA_ID = 41;
         private static final int MSG_UPDATE_TIME_ID = 42;
         private static final int DEFAULT_UPDATE_RATE_MS = 1000;
+        private static final int LOAD_DATA_DELAY_MS = 1000 * 60 * 60 * 24;
         private long mUpdateRateMs = DEFAULT_UPDATE_RATE_MS;
 
         private Time mDisplayTime;
 
-        //private Paint mBackgroundColorPaint;
-        //private Paint mTextColorPaint;
-
         private boolean mHasTimeZoneReceiverBeenRegistered = false;
         private boolean mIsInMuteMode;
         private boolean mIsLowBitAmbient;
-
-        private float mXOffset;
-        private float mYOffset;
-
-        private int mBackgroundColor = Color.parseColor( "black" );
-        private int mTextColor = Color.parseColor( "red" );
 
         private FrameLayout mFrameLayout;
         private TextView mTimeTextView;
@@ -88,6 +80,90 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
         private ImageView mWeatherImageView;
         private TextView mHighTempTextView;
         private TextView mLowTempTextView;
+
+        WeatherData weatherData = new WeatherData();
+        public class WeatherData {
+            public int weatherId;
+            public String date;
+            public double high;
+            public double low;
+        }
+
+        private AsyncTask<Void, Void, Integer> mLoadWeatherDataTask;
+        private class LoadWeatherDataTask extends AsyncTask<Void, Void, Integer> {
+            @Override
+            protected Integer doInBackground(Void... voids) {
+                String locationSetting = Utility.getPreferredLocation(getApplicationContext());
+                long today = System.currentTimeMillis();
+                Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, today);
+
+                Cursor c = getApplicationContext()
+                        .getContentResolver()
+                        .query(weatherForLocationUri, null, null, null, null);
+
+                if (c != null && c.moveToFirst()) {
+                    weatherData.weatherId = c.getInt(c.getColumnIndex(DetailFragment.DETAIL_COLUMNS[COL_WEATHER_CONDITION_ID]));
+                    weatherData.date = Utility.getDateForWatchFace();
+                    weatherData.high = c.getDouble(c.getColumnIndex(DetailFragment.DETAIL_COLUMNS[COL_WEATHER_MAX_TEMP]));
+                    weatherData.low = c.getDouble(c.getColumnIndex(DetailFragment.DETAIL_COLUMNS[COL_WEATHER_MIN_TEMP]));
+                }
+                c.close();
+                return 0;
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                if (result != null) {
+                    mDateTextView.setText(weatherData.date);
+
+                    if ( Utility.usingLocalGraphics(getApplicationContext()) ) {
+                        mWeatherImageView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherData.weatherId));
+                    } else {
+                        // Use weather art image
+                        Glide.with(getApplicationContext())
+                                .load(Utility.getArtUrlForWeatherCondition(getApplicationContext(), weatherData.weatherId))
+                                .error(Utility.getArtResourceForWeatherCondition(weatherData.weatherId))
+                                .crossFade()
+                                .into(mWeatherImageView);
+                    }
+
+                    String description = Utility.getStringForWeatherCondition(getApplicationContext(), weatherData.weatherId);
+                    mWeatherImageView.setContentDescription(getString(R.string.a11y_forecast_icon, description));
+
+                    String highString = Utility.formatTemperature(getApplicationContext(), weatherData.high);
+                    mHighTempTextView.setText(highString);
+                    mHighTempTextView.setContentDescription(getString(R.string.a11y_high_temp, highString));
+
+                    String lowString = Utility.formatTemperature(getApplicationContext(), weatherData.low);
+                    mLowTempTextView.setText(lowString);
+                    mLowTempTextView.setContentDescription(getString(R.string.a11y_low_temp, lowString));
+
+                    invalidate();
+                }
+                if (isVisible()) {
+                    mLoadWeatherDataHandler.sendEmptyMessageDelayed(MSG_UPDATE_DATA_ID, LOAD_DATA_DELAY_MS);
+                }
+            }
+        }
+
+        private final Handler mLoadWeatherDataHandler = new Handler() {
+            @Override
+            public void handleMessage(Message message) {
+                switch (message.what) {
+                    case MSG_UPDATE_DATA_ID:
+                        cancelLoadWeatherDataTask();
+                        mLoadWeatherDataTask = new LoadWeatherDataTask();
+                        mLoadWeatherDataTask.execute();
+                        break;
+                }
+            }
+        };
+
+        private void cancelLoadWeatherDataTask() {
+            if (mLoadWeatherDataTask != null){
+                mLoadWeatherDataTask.cancel(true);
+            }
+        }
 
         private final Handler mTimeHandler = new Handler() {
             @Override
@@ -131,29 +207,10 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
 
             mFrameLayout = (FrameLayout) mInflater.inflate(R.layout.watch_face_main, null);
             mTimeTextView = (TextView) mFrameLayout.findViewById(R.id.txv_time);
+            mDateTextView = (TextView) mFrameLayout.findViewById(R.id.txv_date);
             mWeatherImageView = (ImageView) mFrameLayout.findViewById(R.id.imv_weather);
             mHighTempTextView = (TextView) mFrameLayout.findViewById(R.id.txv_high);
             mLowTempTextView = (TextView) mFrameLayout.findViewById(R.id.txv_low);
-
-            //initBackground();
-            //initDisplayText();
-        }
-
-        private void initBackground() {
-            //mBackgroundColorPaint = new Paint();
-            //mBackgroundColorPaint.setColor( mBackgroundColor );
-        }
-
-        private void drawBackground( Canvas canvas, Rect bounds ) {
-            //canvas.drawRect( 0, 0, bounds.width(), bounds.height(), mBackgroundColorPaint );
-        }
-
-        private void initDisplayText() {
-            //mTextColorPaint = new Paint();
-            //mTextColorPaint.setColor( mTextColor );
-            //mTextColorPaint.setTypeface( WATCH_TEXT_TYPEFACE );
-            //mTextColorPaint.setAntiAlias( true );
-            //mTextColorPaint.setTextSize( getResources().getDimension( R.dimen.watch_face_text_size ) );
         }
 
         @Override
@@ -178,7 +235,6 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             Log.d(TAG, "onAmbientModeChanged() called");
 
             if( inAmbientMode ) {
-                //mTextView
                 //mTextColorPaint.setColor( Color.parseColor( "white" ) );
             } else {
                 //mTextColorPaint.setColor( Color.parseColor( "red" ) );
@@ -188,6 +244,7 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
                 //mTextColorPaint.setAntiAlias( !inAmbientMode );
             }
 
+            drawTimeText();
             invalidate();
             updateTimer();
         }
@@ -204,12 +261,10 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             mFrameLayout.layout(0, 0, bounds.width(), bounds.height());
             mFrameLayout.draw(canvas);
 
-            //drawBackground( canvas, bounds );
-            drawTimeText( canvas );
-            //loadFromDatabase();
+            drawTimeText();
         }
 
-        private void drawTimeText( Canvas canvas ) {
+        private void drawTimeText() {
             String timeText = getHourString() + ":" + String.format( "%02d", mDisplayTime.minute );
             if( isInAmbientMode() || mIsInMuteMode ) {
                 timeText += ( mDisplayTime.hour < 12 ) ? "AM" : "PM";
@@ -234,6 +289,10 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             super.onVisibilityChanged(visible);
             Log.d(TAG, "onVisibilityChanged() called");
 
+            if (visible) {
+            } else {
+            }
+
             if( visible ) {
                 if( !mHasTimeZoneReceiverBeenRegistered ) {
 
@@ -245,11 +304,16 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
 
                 mDisplayTime.clear( TimeZone.getDefault().getID() );
                 mDisplayTime.setToNow();
+
+                mLoadWeatherDataHandler.sendEmptyMessage(MSG_UPDATE_DATA_ID);
             } else {
                 if( mHasTimeZoneReceiverBeenRegistered ) {
                     SunshineWatchFace.this.unregisterReceiver( mTimeZoneBroadcastReceiver );
                     mHasTimeZoneReceiverBeenRegistered = false;
                 }
+
+                mLoadWeatherDataHandler.removeMessages(MSG_UPDATE_DATA_ID);
+                cancelLoadWeatherDataTask();
             }
 
             updateTimer();
@@ -265,14 +329,6 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
         @Override
         public void onApplyWindowInsets(WindowInsets insets) {
             super.onApplyWindowInsets(insets);
-
-//            mYOffset = getResources().getDimension( R.dimen.y_offset );
-//
-//            if( insets.isRound() ) {
-//                mXOffset = getResources().getDimension( R.dimen.x_offset_round );
-//            } else {
-//                mXOffset = getResources().getDimension( R.dimen.x_offset_square );
-//            }
         }
 
         @Override
@@ -289,65 +345,9 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
 
             if( mIsInMuteMode != isDeviceMuted ) {
                 mIsInMuteMode = isDeviceMuted;
-                int alpha = ( isDeviceMuted ) ? 100 : 255;
-                //mTextColorPaint.setAlpha( alpha );
                 invalidate();
                 updateTimer();
             }
-        }
-
-        private void loadFromDatabase() {
-            String locationSetting = Utility.getPreferredLocation(getApplicationContext());
-            Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                    locationSetting, System.currentTimeMillis());
-
-            Cursor c = getApplicationContext()
-                    .getContentResolver()
-                    .query(weatherForLocationUri, null, null, null, null);
-
-            if (c.moveToFirst()) {
-                // Read weather condition ID from cursor
-                int weatherId = c.getInt(DetailFragment.COL_WEATHER_CONDITION_ID);
-
-                if ( Utility.usingLocalGraphics(getApplicationContext()) ) {
-                    mWeatherImageView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
-                } else {
-                    // Use weather art image
-                    Glide.with(getApplicationContext())
-                            .load(Utility.getArtUrlForWeatherCondition(getApplicationContext(), weatherId))
-                            .error(Utility.getArtResourceForWeatherCondition(weatherId))
-                            .crossFade()
-                            .into(mWeatherImageView);
-                }
-
-                // Read date from cursor and update views for day of week and date
-                long date = c.getLong(DetailFragment.COL_WEATHER_DATE);
-                String dateText = Utility.getFullFriendlyDayString(getApplicationContext(),date);
-                mDateTextView.setText(dateText);
-
-                // Get description from weather condition ID
-                String description = Utility.getStringForWeatherCondition(getApplicationContext(), weatherId);
-//                mDescriptionView.setText(description);
-//                mDescriptionView.setContentDescription(getString(R.string.a11y_forecast, description));
-
-                // For accessibility, add a content description to the icon field. Because the ImageView
-                // is independently focusable, it's better to have a description of the image. Using
-                // null is appropriate when the image is purely decorative or when the image already
-                // has text describing it in the same UI component.
-                mWeatherImageView.setContentDescription(getString(R.string.a11y_forecast_icon, description));
-
-                double high = c.getDouble(DetailFragment.COL_WEATHER_MAX_TEMP);
-                String highString = Utility.formatTemperature(getApplicationContext(), high);
-                mHighTempTextView.setText(highString);
-                mHighTempTextView.setContentDescription(getString(R.string.a11y_high_temp, highString));
-
-                // Read low temperature from cursor and update view
-                double low = c.getDouble(DetailFragment.COL_WEATHER_MIN_TEMP);
-                String lowString = Utility.formatTemperature(getApplicationContext(), low);
-                mLowTempTextView.setText(lowString);
-                mLowTempTextView.setContentDescription(getString(R.string.a11y_low_temp, lowString));
-            }
-            c.close();
         }
     }
 }
